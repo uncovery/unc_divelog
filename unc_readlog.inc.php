@@ -17,13 +17,8 @@ function unc_divelog_db_connect() {
 function unc_divelog_query() {
     $DB = unc_divelog_db_connect();
     // list all tables
-    $results = $DB->query("SELECT * FROM Dive ORDER BY DiveId DESC LIMIT 1");
+    $results = $DB->query("SELECT quote(SampleBlob) as test FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
     $row = $results->fetchArray(SQLITE3_ASSOC);
-    $str = var_export($row['SampleBlob'], true);
-    $data = explode(' . ', $str);
-    echo count($data);
-    foreach ($data as $data_set) {
-        echo var_export($data_set, true) . "<br>";
-    }
+    echo var_export($row['test'], true);
 }
