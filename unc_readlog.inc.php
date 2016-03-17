@@ -19,8 +19,8 @@ function unc_divelog_query() {
     // list all tables
     $results = $DB->query("SELECT * FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
-    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-        $sample = $row['SampleBlob'];
-    }
-    return $sample;
+    $row = $results->fetchArray(SQLITE3_ASSOC);
+    $sample = $row['SampleBlob'];
+
+    return var_export($row, true);
 }
