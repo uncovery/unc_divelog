@@ -20,9 +20,9 @@ function unc_divelog_query() {
     $results = $DB->query("SELECT * FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
     while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-        return var_dump($row['SampleBlob'], true);
+        $sample = $row['SampleBlob'];
     }
-    $blob_length = strlen($sample) / 4;
+    $blob_length = strlen($sample) / 3;
     $dive = array();
     for ($i=0; $i< $blob_length; $i++) {
         $byte = substr($sample, $i * 4, 4);
