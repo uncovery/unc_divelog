@@ -12,9 +12,8 @@ function unc_display_shortcode($atts = array()) {
         'details' => false, // description for individual files
     ), $atts);
 
-    phpinfo();
 
-    // $out = unc_divelog_query();
+    $out = unc_divelog_query();
     return $out;
 
 }
