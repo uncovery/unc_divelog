@@ -23,8 +23,9 @@ $XMPP_ERROR['config']['project_name'] = 'unc_divelog';
 $XMPP_ERROR['config']['enabled'] = true;
 $XMPP_ERROR['config']['ignore_warnings'] = array('jaxl');
 
+require_once( plugin_dir_path( __FILE__ ) . "unc_config.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_readlog.inc.php");
-
+require_once( plugin_dir_path( __FILE__ ) . "unc_display.inc.php");
 
 // actions on activating and deactivating the plugin
 register_activation_hook( __FILE__, 'unc_divelog_plugin_activate');
