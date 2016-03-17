@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('WPINC')) {
+    die;
+}
+
 // This is used to automatically / dynamically create the settings menu
 $UNC_GALLERY['user_settings'] = array(
     'admin_date_selector' => array(

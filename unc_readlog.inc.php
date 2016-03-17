@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('WPINC')) {
+    die;
+}
+
 function unc_divelog_db_connect() {
     $error = NULL;
     $file = __DIR__ . DIRECTORY_SEPARATOR . "data" . DIRECTORY_SEPARATOR . "user.db";
