@@ -19,9 +19,14 @@ function unc_divelog_query() {
     // list all tables
     $results = $DB->query("SELECT * FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
-    $out = '';
     while ($row = $results->fetchArray()) {
-        $out .= var_export($row, true);
+        $sample = $row['SampleBlob'];
     }
-    return $out;
+    $blob_length = strlen($sample) / 4;
+    $dive = array();
+    for ($i=0; $i< $blob_length; $i++) {
+        $byte = substr($sample, $i * 4, 4);
+        $dive[] = unpack('f', $byte);
+    }
+    return var_export($dive, true);
 }
