@@ -22,10 +22,11 @@ function unc_divelog_query() {
     while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
         $sample = $row['SampleBlob'];
     }
-    $blob_length = strlen($sample) / 3;
+    $complete_length = strlen($sample);
+    $element_length = $complete_length / 155;
     $dive = array();
-    for ($i=0; $i< $blob_length; $i++) {
-        $byte = substr($sample, $i * 4, 4);
+    for ($i=0; $i< $complete_length; $i++) {
+        $byte = substr($sample, $i * $element_length, $element_length);
         $dive[] = unpack('f', $byte);
     }
     return var_export($dive, true);
