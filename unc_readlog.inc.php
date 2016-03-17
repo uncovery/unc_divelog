@@ -17,10 +17,8 @@ function unc_divelog_db_connect() {
 function unc_divelog_query() {
     $DB = unc_divelog_db_connect();
     // list all tables
-    $query_error = NULL;
     $query = $DB->query("SELECT name FROM sqlite_master WHERE type='table'");
 
-    $out = "tables: " . $query->numRows() . "<br>";
     while ($row = $query->fetch()) {
         $out .= $row['name'] . "<br>";
     }
