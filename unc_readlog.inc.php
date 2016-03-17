@@ -20,7 +20,7 @@ function unc_divelog_query() {
     $results = $DB->query("SELECT * FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
     while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-        $sample = $row['SampleBlob'];
+        return var_dump($row, true);
     }
     $complete_length = strlen($sample);
     $element_length = $complete_length / 155;
