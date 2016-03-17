@@ -20,7 +20,7 @@ function unc_divelog_query() {
     $results = $DB->query("SELECT * FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
     while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-        $sample = gzuncompress($row['SampleBlob']);
+        $sample = gzdeflate($row['SampleBlob']);
     }
     return var_export($sample, true);
 }
