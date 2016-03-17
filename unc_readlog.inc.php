@@ -7,10 +7,9 @@ if (!defined('WPINC')) {
 function unc_divelog_db_connect() {
     $error = NULL;
     $file = __DIR__ . DIRECTORY_SEPARATOR . "data" . DIRECTORY_SEPARATOR . "user.db";
-    $database = new SQLiteDatabase($file, 0666, $error);
+    $database = new SQLite3($file, SQLITE3_OPEN_READONLY);
     if (!$database) {
-        $error = (file_exists($file)) ? "Impossible to open, check permissions" : "Impossible to create, check permissions";
-        die($error);
+        echo "Error";
     }
     return $database;
 }
