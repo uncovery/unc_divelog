@@ -24,6 +24,6 @@ function unc_divelog_query() {
     $data = explode(".", $str);
     echo count($data);
     foreach ($data as $data_set) {
-        echo unpack("f", $data_set) . "<br>";
+        echo var_export($data_set, true) . "<br>";
     }
 }
