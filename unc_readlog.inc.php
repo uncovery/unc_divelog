@@ -17,10 +17,11 @@ function unc_divelog_db_connect() {
 function unc_divelog_query() {
     $DB = unc_divelog_db_connect();
     // list all tables
-    $results = $DB->query("SELECT name FROM sqlite_master WHERE type='table'");
+    $results = $DB->query("SELECT * FROM Dive LIMIT 1");
 
+    $out = '';
     while ($row = $results->fetchArray()) {
-        $out .= $row['name'] . "<br>";
+        $out .= var_export($row, true);
     }
     return $out;
 }
