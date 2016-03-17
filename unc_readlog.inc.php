@@ -21,9 +21,9 @@ function unc_divelog_query() {
 
     $row = $results->fetchArray(SQLITE3_ASSOC);
     $str = var_export($row['SampleBlob'], true);
-    $data = explode(' . "\0" . ', $str);
+    $data = explode(' . ', $str);
     echo count($data);
     foreach ($data as $data_set) {
-        echo var_dump($data_set) . "<br>";
+        echo var_export($data_set, true) . "<br>";
     }
 }
