@@ -31,7 +31,8 @@ function unc_divelog_query() {
     The last 4 Bytes are always FFFF7F7F
     */
 
-    $data = var_export($row['test'], true);
+    $data = var_export(substr($row['test'],1), true);
+
     $data_arr = chunk_split($data, 32);
     var_dump($data_arr);
 
