@@ -23,5 +23,7 @@ function unc_divelog_query() {
     $str = var_export($row['SampleBlob'], true);
     $data = explode(".", $str);
     echo count($data);
-    
+    foreach ($data as $data_set) {
+        echo unpack("f", $data_set) . "<br>";
+    }
 }
