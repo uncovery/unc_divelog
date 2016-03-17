@@ -22,5 +22,5 @@ function unc_divelog_query() {
     $row = $results->fetchArray(SQLITE3_ASSOC);
     $sample = $row['SampleBlob'];
 
-    return var_dump($row, true);
+    return var_export($row, true);
 }
