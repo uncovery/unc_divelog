@@ -31,6 +31,9 @@ register_activation_hook( __FILE__, 'unc_divelog_plugin_activate');
 register_deactivation_hook( __FILE__, 'unc_divelog_plugin_deactivate');
 register_uninstall_hook( __FILE__, 'unc_divelog_plugin_uninstall');
 
+// shortcode for the [unc_gallery] replacements
+add_shortcode('unc_divelog', 'unc_display_shortcode');
+
 /**
  * standard wordpress function to activate the plugin.
  * creates the uploads folder
