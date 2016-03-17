@@ -32,7 +32,7 @@ function unc_divelog_query() {
     */
 
     $data = var_export($row['test'], true);
-    $data_arr = chunk_split($data, 16);
+    $data_arr = chunk_split($data, 32);
     var_dump($data_arr);
 
 }
