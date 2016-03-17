@@ -20,7 +20,8 @@ function unc_divelog_query() {
     $results = $DB->query("SELECT * FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
     $row = $results->fetchArray(SQLITE3_ASSOC);
-    $sample = $row['SampleBlob'];
-
-    return var_export($row['SampleBlob'], true);
+    $str = var_export($row['SampleBlob'], true);
+    $data = explode(".", $str);
+    echo count($data);
+    
 }
