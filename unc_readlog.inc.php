@@ -17,7 +17,7 @@ function unc_divelog_db_connect() {
 function unc_divelog_query() {
     $DB = unc_divelog_db_connect();
     // list all tables
-    $results = $DB->query("SELECT * FROM Dive LIMIT 1");
+    $results = $DB->query("SELECT * FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
     $out = '';
     while ($row = $results->fetchArray()) {
