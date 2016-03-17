@@ -25,7 +25,7 @@ function unc_divelog_query() {
     $complete_length = strlen($sample);
     $element_length = $complete_length / 155;
     $dive = array();
-    for ($i=0; $i< $complete_length; $i++) {
+    for ($i=0; $i< $complete_length / $element_length; $i++) {
         $byte = substr($sample, $i * $element_length, $element_length);
         $dive[] = unpack('f', $byte);
     }
