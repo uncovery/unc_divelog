@@ -20,5 +20,19 @@ function unc_divelog_query() {
     $results = $DB->query("SELECT quote(SampleBlob) as test FROM Dive ORDER BY DiveId DESC LIMIT 1");
 
     $row = $results->fetchArray(SQLITE3_ASSOC);
-    echo var_export($row['test'], true);
+
+    /*
+    The first 3 bytes are irrelevant.
+    Bytes 4-7 contain the depth as floating point number (read like in DM4)
+    Bytes 8-10 contain the pressure (read bytes backwards and convert to
+    decimal). result is millibar
+    Bytes 11-12 contain the temperature in Celsius (read bytes forwards and
+    convert to decimal)
+    The last 4 Bytes are always FFFF7F7F
+    */
+
+    $data = var_export($row['test'], true);
+    $data_arr = explode('FFFF7F7F', $data);
+    var_dump($data_arr);
+
 }
