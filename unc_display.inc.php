@@ -1,6 +1,37 @@
 <?php
 
 function unc_display_shortcode($atts = array()) {
+    global $UNC_DIVELOG;
+
+    unc_divelog_display_init($atts);
+
+    $D = $UNC_DIVELOG['display'];
+
+    $avail_dives = unc_divelog_enumerate_dives($D['data_format'], $D['source']);
+
+    if ($D['date_selector'] == 'calendar') {
+        $avail_dives = unc_divelog_enumerate_dives($D['data_format']);
+        $out = "\n     <script type=\"text/javascript\">
+        var availableDates = [\"" . implode("\",\"", array_keys($avail_dives)) . "\"];
+        var ajaxurl = \"" . admin_url('admin-ajax.php') . "\";
+        jQuery(document).ready(function($) {
+            datepicker_ready('{$D['date']}');
+        });
+        </script>";
+        $out .= "Date: <input type=\"text\" id=\"datepicker\" value=\"{$D['date']}\">";
+    } else if ($D['date_selector'] == 'datelist') {
+        $avail_dives = unc_divelog_enumerate_dives($D['data_format']);
+        $out = "<select id=\"datepicker\" onchange=\"datelist_change()\">\n";
+        foreach ($avail_dives as $folder_date => $dive_id) {
+            $datepicker_div .= "<option value=\"$folder_date\">$folder_date (ID $dive_id)</option>\n";
+        }
+        $out .="</select>\n";
+    }
+    return unc_display_final($out);
+}
+
+function unc_divelog_display_init($atts) {
+    global $UNC_DIVELOG;
     $a = shortcode_atts( array(
         'options' => false, // we cannot set it to an array here
         'date' => false, // time of the day when we start displaying this date
@@ -9,29 +40,55 @@ function unc_display_shortcode($atts = array()) {
         'offset' => false,
         'data_format' => 'D4i',
         'date_offset' => false,
+        'date_selector' => false,
+        'source' => 'user.db',
     ), $atts);
 
-    $out = unc_divelog_query($a['dive'], $a['data_format']);
-    return unc_display_final($out);
+    // there can be several options, separated by space
+    if (!$a['options']) {
+        $options = array();
+    } else {
+        $options = explode(" ", $a['options']);
+    }
+    $UNC_DIVELOG['options'] = $options;
+
+    $UNC_DIVELOG['display']['source'] = $a['source'];
+
+    // which dive ID
+    $UNC_DIVELOG['display']['dive'] = $a['dive'];
+
+    // data format of that dive
+    $UNC_DIVELOG['display']['data_format'] = $a['data_format'];
+
+    $UNC_DIVELOG['display']['date_selector'] = false;
+    if (in_array('calendar', $options)) {
+        $UNC_DIVELOG['display']['date_selector'] = 'calendar';
+    } else if (in_array('datelist', $options)) {
+        $UNC_DIVELOG['display']['date_selector'] = 'datelist';
+    }
+    $UNC_DIVELOG['display']['date'] = unc_divelog_dive_latest();
 }
 
 
-function unc_display_final($data) {
+function unc_display_final($out) {
+    global $UNC_DIVELOG;
+    $D = $UNC_DIVELOG;
+    $data = unc_divelog_query();
     $chart_data = $data['dive_path'];
     $start_time = $data['start_time'];
     echo $start_time;
     $date_obj = new DateTime($start_time);
     $final_data = array();
-    foreach ($chart_data as $id => $dive_point) {
+    foreach ($chart_data as $dive_point) {
         if ($dive_point['time'] > 0 ) {
-            $modifier = "+" . $dive_point['time'] . " second";
             $date_obj->add(new DateInterval("PT" . $dive_point['time'] . "S"));
         }
-        $time = $date_obj->format("H:m:s");
-        $final_data["$time ($modifier)"] = array('depth' => ($dive_point['depth'] * -1), 'temperature' => $dive_point['temp']);
+        $time = $date_obj->format("H:i:s");
+        $final_data[$time] = array('depth' => ($dive_point['depth'] * -1), 'temperature' => $dive_point['temp']);
     }
 
-    return unc_divelog_javachart($final_data, 'Time', 'none', array('depth' => 'left', 'temperature' => 'right'), 'amchart', false, 500);
+    $out .= unc_divelog_javachart($final_data, 'Time', 'none', array('depth' => 'left', 'temperature' => 'right'), 'amchart', false, 500);
+    return $out;
 }
 
 

@@ -14,18 +14,19 @@ function unc_divelog_db_connect($filename) {
 }
 
 /**
- * This is the function that does the data loading and converion.
+ * This is the function that does the data loading and conversion.
  *
  * @global type $UNC_DIVELOG
  * @param type $dive_number
  * @param type $format
  * @return type
  */
-function unc_divelog_query($dive_number, $format) {
+function unc_divelog_query() {
     global $UNC_DIVELOG;
+    $D = $UNC_DIVELOG['display'];
 
     // first, get the data formats and fieldnames from the DB for the given $format
-    $DS = $UNC_DIVELOG['data_structure'][$format]['fieldmap'];
+    $DS = $UNC_DIVELOG['data_structure'][$D['data_format']]['fieldmap'];
 
     // let's make a SQL SELECT statement that uses the desired fieldnames
     $sql_elements = array();
@@ -35,11 +36,11 @@ function unc_divelog_query($dive_number, $format) {
     $sql_select = implode(", ", $sql_elements);
 
     // insert the SELECT into the query
-    $query = "SELECT $sql_select FROM Dive WHERE dive_number = $dive_number;";
+    $query = "SELECT $sql_select FROM Dive WHERE dive_number = {$D['dive']};";
 
     // TODO: This needs to be set by default since there is only one
     // or through the shortcode
-    $DB = unc_divelog_db_connect("user.db");
+    $DB = unc_divelog_db_connect($D['source']);
 
     // get my results
     $results = $DB->query($query);
@@ -82,7 +83,7 @@ function unc_divelog_data_convert($format, $data) {
             $seconds = $data / 10000000 - $number_of_seconds;
             $date = new DateTime();
             $date->setTimestamp($seconds);
-            $date_str = $date->format("Y-m-d H:m:s");
+            $date_str = $date->format("Y-m-d H:i:s");
             return $date_str;
         case 'D4i_SampleBlob':
             //  see here: http://lists.subsurface-divelog.org/pipermail/subsurface/2014-November/015798.html
@@ -109,4 +110,58 @@ function unc_divelog_data_convert($format, $data) {
             }
             return $dive_path;
     }
+}
+
+function unc_divelog_enumerate_dives() {
+    global $UNC_DIVELOG;
+    $D = $UNC_DIVELOG['display'];
+
+    $DB = unc_divelog_db_connect($D['source']);
+
+    $DS = $UNC_DIVELOG['data_structure'][$D['data_format']]['fieldmap'];
+
+    $date_field = $DS['start_time']['field_name'];
+    $date_format = $DS['start_time']['format'];
+
+    // insert the SELECT into the query
+    $query = "SELECT $date_field as date_str FROM Dive;";
+    $results = $DB->query($query);
+
+    $dive_dates = array();
+    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+        $date = unc_divelog_data_convert($date_format, $row['date_str']);
+        $date_obj = new DateTime($date);
+        $day = $date_obj->format("Y-m-d");
+        if (!isset($dive_dates[$day])) {
+            $dive_dates[$day] = 0;
+        }
+        $dive_dates[$day]++;
+    }
+    return $dive_dates;
+}
+
+/**
+ * get the date of the last dive
+ *
+ * @global type $UNC_DIVELOG
+ * @return type
+ */
+function unc_divelog_dive_latest() {
+    global $UNC_DIVELOG;
+    $D = $UNC_DIVELOG['display'];
+
+    $DB = unc_divelog_db_connect($D['source']);
+
+    $DS = $UNC_DIVELOG['data_structure'][$D['data_format']]['fieldmap'];
+
+    $date_field = $DS['start_time']['field_name'];
+    $date_format = $DS['start_time']['format'];
+
+    $query = "SELECT $date_field as date_str FROM Dive ORDER BY $date_field DESC LIMIT 1";
+    $results = $DB->query($query);
+    $row = $results->fetchArray(SQLITE3_ASSOC);
+    $date = unc_divelog_data_convert($date_format, $row['date_str']);
+    $date_obj = new DateTime($date);
+    $day = $date_obj->format("Y-m-d");
+    return $day;
 }
