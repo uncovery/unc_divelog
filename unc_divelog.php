@@ -108,9 +108,9 @@ function unc_divelog_add_css_and_js() {
     wp_enqueue_script('jquery-ui-tabs', '/wp-includes/js/jquery/ui/tabs.min.js');
     wp_enqueue_script('jquery-ui-datepicker', '/wp-includes/js/jquery/ui/jquery.ui.datepicker.min.js');
 
-    wp_register_script('unc_divelog_amchart_js', plugin_dir_url( __FILE__ ) . 'js/amcharts.js', array(), '3.19.5', false );
-    wp_register_script('unc_divelog_amchart_light_js', plugin_dir_url( __FILE__ ) . 'js/light.js', array('unc_divelog_amchart_js'), '3.19.5', false );
-    wp_register_script('unc_divelog_amchart_serial_js', plugin_dir_url( __FILE__ ) . 'js/serial.js', array('unc_divelog_amchart_js'), '3.19.5', false );
+    wp_register_script('unc_divelog_amchart_js', plugin_dir_url( __FILE__ ) . 'js/amcharts.js', array(), '3.19.5', false);
+    wp_register_script('unc_divelog_amchart_light_js', plugin_dir_url( __FILE__ ) . 'js/light.js', array('unc_divelog_amchart_js'), '3.19.5', false);
+    wp_register_script('unc_divelog_amchart_serial_js', plugin_dir_url( __FILE__ ) . 'js/serial.js', array('unc_divelog_amchart_js'), '3.19.5', false);
     wp_enqueue_script('unc_divelog_amchart_js');
     wp_enqueue_script('unc_divelog_amchart_light_js');
     wp_enqueue_script('unc_divelog_amchart_serial_js');

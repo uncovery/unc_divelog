@@ -1,4 +1,4 @@
-function datepicker_available(date) {
+function datepicker_available(date, divecount) {
     off = date.getTimezoneOffset();
     // adjust for timezone
     off_inv = off * -1;
@@ -6,7 +6,7 @@ function datepicker_available(date) {
     iso = date.toISOString();
     ymd = iso.substring(0, 10);
     if (jQuery.inArray(ymd, availableDates) !== -1) {
-        return [true, formatCurrentDate(ymd), ymd + " has images"];
+        return [true, formatCurrentDate(ymd), ymd + " has dives"];
     } else {
         return [false, "dateunavailable", "No images on " + ymd];
     }

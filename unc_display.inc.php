@@ -22,8 +22,8 @@ function unc_display_shortcode($atts = array()) {
     } else if ($D['date_selector'] == 'datelist') {
         $avail_dives = unc_divelog_enumerate_dives($D['data_format']);
         $out = "<select id=\"datepicker\" onchange=\"datelist_change()\">\n";
-        foreach ($avail_dives as $folder_date => $dive_id) {
-            $datepicker_div .= "<option value=\"$folder_date\">$folder_date (ID $dive_id)</option>\n";
+        foreach ($avail_dives as $folder_date => $dive_count) {
+            $out .= "<option value=\"$folder_date\">$folder_date ($dive_count dives)</option>\n";
         }
         $out .="</select>\n";
     }
@@ -84,11 +84,22 @@ function unc_display_final($out) {
             $date_obj->add(new DateInterval("PT" . $dive_point['time'] . "S"));
         }
         $time = $date_obj->format("H:i:s");
-        $final_data[$time] = array('depth' => ($dive_point['depth'] * -1), 'temperature' => $dive_point['temp']);
+        $final_data[$time] = array(
+            'depth' => ($dive_point['depth'] * -1),
+            'temperature' => $dive_point['temp'],
+            // 'customBullet' => unc_display_gallery_link($time, $dive_point['time']),
+        );
     }
 
     $out .= unc_divelog_javachart($final_data, 'Time', 'none', array('depth' => 'left', 'temperature' => 'right'), 'amchart', false, 500);
     return $out;
+}
+
+function unc_display_gallery_link($time, $gap){
+
+
+    $url = '';
+    return '"customBullet": "'. $url .'"';
 }
 
 
@@ -161,6 +172,7 @@ function unc_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = f
             \"valueField\": \"$graph\",
             \"fillAlphas\": 0.6,
             \"balloonText\": \"$title: [[value]]\"
+            \"customBulletField\": \"customBullet\",
             $graphaxis},\n";
     }
     $out .= '
