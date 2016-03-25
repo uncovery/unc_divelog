@@ -124,7 +124,7 @@ function unc_divelog_enumerate_dives() {
     $date_format = $DS['start_time']['format'];
 
     // insert the SELECT into the query
-    $query = "SELECT $date_field as date_str FROM Dive;";
+    $query = "SELECT $date_field as date_str FROM Dive ORDER BY start_time DESC;";
     $results = $DB->query($query);
 
     $dive_dates = array();
