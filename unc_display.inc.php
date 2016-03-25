@@ -9,6 +9,7 @@ function unc_display_shortcode($atts = array()) {
 
     $avail_dives = unc_divelog_enumerate_dives($D['data_format'], $D['source']);
 
+    $out = '';
     if ($D['date_selector'] == 'calendar') {
         $avail_dives = unc_divelog_enumerate_dives($D['data_format']);
         $out = "\n     <script type=\"text/javascript\">
