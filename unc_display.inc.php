@@ -165,7 +165,7 @@ function unc_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = f
         if ($axis_groups) {
             if (isset($axis_groups[$graph])) {
                 $valaxis .= '{"id": "'.$graph.'", "title": "'.$title.'", "position": "'.$axis_groups[$graph].'"},';
-                $graphaxis = ',"valueAxis": "'.$graph.'",';
+                $graphaxis = ',"valueAxis": "'.$graph.'"';
             }
         }
         $out .= "{
@@ -173,7 +173,7 @@ function unc_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = f
             \"valueField\": \"$graph\",
             \"fillAlphas\": 0.6,
             \"balloonText\": \"$title: [[value]]\",
-            \"customBulletField\": \"customBullet\",
+            \"customBulletField\": \"customBullet\"
             $graphaxis},\n";
     }
     $out .= '
