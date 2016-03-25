@@ -7,7 +7,7 @@ function unc_display_shortcode($atts = array()) {
 
     $D = $UNC_DIVELOG['display'];
 
-    $avail_dives = unc_divelog_enumerate_dives($D['data_format'], $D['source']);
+    
 
     $out = '';
     if ($D['date_selector'] == 'calendar') {
@@ -172,7 +172,7 @@ function unc_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = f
             \"title\": \"$title\",
             \"valueField\": \"$graph\",
             \"fillAlphas\": 0.6,
-            \"balloonText\": \"$title: [[value]]\"
+            \"balloonText\": \"$title: [[value]]\",
             \"customBulletField\": \"customBullet\",
             $graphaxis},\n";
     }
