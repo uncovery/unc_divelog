@@ -3,6 +3,7 @@
 function unc_display_shortcode($atts = array()) {
     global $UNC_DIVELOG;
 
+    unc_divelog_add_css_and_js();
     unc_divelog_display_init($atts);
 
     $D = $UNC_DIVELOG['display'];
