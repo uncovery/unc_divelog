@@ -4,7 +4,7 @@ if (!defined('WPINC')) {
     die;
 }
 
-function unc_divelog_db_connect($filename) {
+function uncd_divelog_db_connect($filename) {
     $file = __DIR__ . DIRECTORY_SEPARATOR . "data" . DIRECTORY_SEPARATOR . $filename;
     $database = new SQLite3($file, SQLITE3_OPEN_READONLY);
     if (!$database) {
@@ -21,7 +21,7 @@ function unc_divelog_db_connect($filename) {
  * @param type $format
  * @return type
  */
-function unc_divelog_query() {
+function uncd_divelog_query() {
     global $UNC_DIVELOG;
     $D = $UNC_DIVELOG['display'];
 
@@ -36,11 +36,11 @@ function unc_divelog_query() {
     $sql_select = implode(", ", $sql_elements);
 
     // insert the SELECT into the query
-    $query = "SELECT $sql_select FROM Dive WHERE dive_number = {$D['dive']};";
-
+    $query = "SELECT $sql_select FROM Dive WHERE dive_number = {$D['dive_id']};";
+    $UNC_DIVELOG['debug'][] = $query;
     // TODO: This needs to be set by default since there is only one
     // or through the shortcode
-    $DB = unc_divelog_db_connect($D['source']);
+    $DB = uncd_divelog_db_connect($D['source']);
 
     // get my results
     $results = $DB->query($query);
@@ -51,7 +51,7 @@ function unc_divelog_query() {
     foreach ($DS as $field_name => $field_data) {
         // if we need to convert something
         if (isset($field_data['format'])) {
-            $data_set[$field_name] = unc_divelog_data_convert($field_data['format'], $row[$field_name]);
+            $data_set[$field_name] = uncd_divelog_data_convert($field_data['format'], $row[$field_name]);
         } else {
             $data_set[$field_name] = $row[$field_name];
         }
@@ -66,7 +66,7 @@ function unc_divelog_query() {
  * @param type $data
  * @return type
  */
-function unc_divelog_data_convert($format, $data) {
+function uncd_divelog_data_convert($format, $data) {
     switch ($format) {
         // four-digit hex format of a float such as D7 A3 D0 3F = 1.63...
         case 'binary_float':
@@ -87,11 +87,11 @@ function unc_divelog_data_convert($format, $data) {
             return $date_str;
         case 'D4i_SampleBlob':
             //  see here: http://lists.subsurface-divelog.org/pipermail/subsurface/2014-November/015798.html
-            $data_clipped = substr($data,4);
+            $data_clipped = substr($data, 4);
             $data_str = chunk_split($data_clipped, 46, "|");
             $dive_array = explode("|", $data_str);
             // pattern is in the format 1400 A470CD40 FFFFFF7F 1E FFFF7F7 FFFFF7F7 FFFFF7F7F
-            $pattern = "/(?'time'[0-9A-F]{2})[0-9A-F]{2}(?'depth'[0-9A-F]{8})[0-9A-F]{8}(?'temp'[1-9A-F]{2}).*/";
+            $pattern = "/(?'time'[0-9A-F]{2})[0-9A-F]{2}(?'depth'[0-9A-F]{8})[0-9A-F]{8}(?'temp'[0-9A-F]{2}).*/";
             $fields = array('depth' => 'binary_float', 'temp' => 'hex', 'time' => 'hex');
             $dive_path = array();
             $i = 0;
@@ -103,7 +103,7 @@ function unc_divelog_data_convert($format, $data) {
                         continue;
                     }
                     $data = $results[$field];
-                    $converted = unc_divelog_data_convert($format, $data);
+                    $converted = uncd_divelog_data_convert($format, $data);
                     $dive_path[$i][$field] = $converted; // D4i measures every 20 seconds
                 }
                 $i++;
@@ -112,30 +112,36 @@ function unc_divelog_data_convert($format, $data) {
     }
 }
 
-function unc_divelog_enumerate_dives() {
+function uncd_divelog_enumerate_dives() {
     global $UNC_DIVELOG;
     $D = $UNC_DIVELOG['display'];
 
-    $DB = unc_divelog_db_connect($D['source']);
+    $DB = uncd_divelog_db_connect($D['source']);
 
     $DS = $UNC_DIVELOG['data_structure'][$D['data_format']]['fieldmap'];
 
     $date_field = $DS['start_time']['field_name'];
     $date_format = $DS['start_time']['format'];
+    $dive_number = $DS['dive_number']['field_name'];
 
+    $filter = '';
+    if (isset($UNC_DIVELOG['data_structure'][$D['data_format']]['filter'])) {
+        $sql_filter = $UNC_DIVELOG['data_structure'][$D['data_format']]['filter'];
+        $filter = 'WHERE ' . $sql_filter;
+    }
+    
     // insert the SELECT into the query
-    $query = "SELECT $date_field as date_str FROM Dive ORDER BY $date_field DESC;";
+    $query = "SELECT $date_field as date_str, $dive_number as dive_number FROM Dive $filter ORDER BY $date_field DESC;";
     $results = $DB->query($query);
 
     $dive_dates = array();
     while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-        $date = unc_divelog_data_convert($date_format, $row['date_str']);
+        $date = uncd_divelog_data_convert($date_format, $row['date_str']);
+        $dive_id = $row['dive_number'];
         $date_obj = new DateTime($date);
         $day = $date_obj->format("Y-m-d");
-        if (!isset($dive_dates[$day])) {
-            $dive_dates[$day] = 0;
-        }
-        $dive_dates[$day]++;
+        $time = $date_obj->format("H:i:s");
+        $dive_dates[$day][$dive_id] = $time;
     }
     return $dive_dates;
 }
@@ -146,21 +152,27 @@ function unc_divelog_enumerate_dives() {
  * @global type $UNC_DIVELOG
  * @return type
  */
-function unc_divelog_dive_latest() {
+function uncd_divelog_dive_latest() {
     global $UNC_DIVELOG;
     $D = $UNC_DIVELOG['display'];
 
-    $DB = unc_divelog_db_connect($D['source']);
+    $DB = uncd_divelog_db_connect($D['source']);
 
     $DS = $UNC_DIVELOG['data_structure'][$D['data_format']]['fieldmap'];
 
     $date_field = $DS['start_time']['field_name'];
     $date_format = $DS['start_time']['format'];
 
-    $query = "SELECT $date_field as date_str FROM Dive ORDER BY $date_field DESC LIMIT 1";
+    $filter = '';
+    if (isset($UNC_DIVELOG['data_structure'][$D['data_format']]['filter'])) {
+        $sql_filter = $UNC_DIVELOG['data_structure'][$D['data_format']]['filter'];
+        $filter = 'WHERE ' . $sql_filter;
+    }
+        
+    $query = "SELECT $date_field as date_str FROM Dive $filter ORDER BY $date_field DESC LIMIT 1";
     $results = $DB->query($query);
     $row = $results->fetchArray(SQLITE3_ASSOC);
-    $date = unc_divelog_data_convert($date_format, $row['date_str']);
+    $date = uncd_divelog_data_convert($date_format, $row['date_str']);
     $date_obj = new DateTime($date);
     $day = $date_obj->format("Y-m-d");
     return $day;

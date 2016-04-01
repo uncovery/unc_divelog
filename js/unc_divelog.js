@@ -12,15 +12,14 @@ function datepicker_available(date, divecount) {
     }
 }
 
-function datepicker_select(dateText, inst) {
+function divepicker_select(dive_id, inst) {
     jQuery.ajax({
         url: ajaxurl,
         method: 'GET',
         dataType: 'text',
-        data: {action: 'unc_divelog_datepicker', date: dateText},
+        data: {action: 'uncd_divelog_datepicker', date: dive_id},
         complete: function (response) {
-            jQuery('#photos').html(response.responseText);
-            jQuery('#photodate').html("Showing " + dateText);
+            jQuery('#dives').html(response.responseText);
         },
         error: function () {
 
@@ -33,16 +32,16 @@ function datepicker_ready(defaultdate) {
         dateFormat: 'yy-mm-dd',
         defaultDate: defaultdate,
         beforeShowDay: datepicker_available,
-        onSelect: datepicker_select
+        onSelect: divepicker_select
     });
 }
 
-function datelist_change() {
-    var datelist_value = jQuery('#datepicker').val();
-    datepicker_select(datelist_value);
+function divelist_change() {
+    var divelist_value = jQuery('#divepicker').val();
+    divepicker_select(divelist_value);
 }
 
-function unc_divelog_generic_ajax(action, target_div, confirmation_message) {
+function uncd_divelog_generic_ajax(action, target_div, confirmation_message) {
     jQuery('#' + target_div).html('');
     if (confirmation_message) {
         var c = confirm(confirmation_message);

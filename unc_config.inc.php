@@ -14,4 +14,4 @@ $UNC_DIVELOG['user_settings'] = array(
     ),
 );
 
-$UNC_DIVELOG['settings_prefix'] = 'unc_divelog_';
+$UNC_DIVELOG['settings_prefix'] = 'uncd_divelog_';

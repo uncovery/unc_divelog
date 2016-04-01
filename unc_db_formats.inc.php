@@ -1,6 +1,7 @@
 <?php
 
 $UNC_DIVELOG['data_structure'] = array(
+    // SUUNTO D4i read with D5 dive software, exported SQLite DB
     'D4i' => array(
         'fieldmap' => array(
             'dive_number' => array('field_name' => 'DiveId'),
@@ -10,15 +11,16 @@ $UNC_DIVELOG['data_structure'] = array(
             'serial_no' => array('field_name' => 'SerialNumber'),
             'dive_path' => array('field_name' => 'quote(SampleBlob)', 'format' => 'D4i_SampleBlob'),
         ),
+        'filter' => 'Mode < 3', // no free diving for now
         'sample_data' => array(
             'DiveId' => 83,
             'StartTime' => '635932062070000000',
             'Duration' => 3105,
-            'Mode' => 1,
+            'Mode' => 1, // dive mode, 1=Nitrox, 3 = Free dive
             'SourceSerialNumber' => NULL,
             'Source' => 'D4i',
             'MaxDepth' => 27.329999999999998,
-            'SampleInterval' => 20,
+            'SampleInterval' => 20, // the interval for the dive blob
             'Note' => '',
             'StartTemperature' => 31,
             'BottomTemperature' => 29,
