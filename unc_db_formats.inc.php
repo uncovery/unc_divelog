@@ -10,6 +10,7 @@ $UNC_DIVELOG['data_structure'] = array(
             'avg_depth' => array('field_name' => 'AvgDepth'),
             'serial_no' => array('field_name' => 'SerialNumber'),
             'dive_path' => array('field_name' => 'quote(SampleBlob)', 'format' => 'D4i_SampleBlob'),
+            'dive_time' => array('field_name' => 'Duration'), // in seconds
         ),
         'filter' => 'Mode < 3', // no free diving for now
         'sample_data' => array(

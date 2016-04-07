@@ -92,7 +92,7 @@ function uncd_divelog_data_convert($format, $data) {
             $dive_array = explode("|", $data_str);
             // pattern is in the format 1400 A470CD40 FFFFFF7F 1E FFFF7F7 FFFFF7F7 FFFFF7F7F
             $pattern = "/(?'time'[0-9A-F]{2})[0-9A-F]{2}(?'depth'[0-9A-F]{8})[0-9A-F]{8}(?'temp'[0-9A-F]{2}).*/";
-            $fields = array('depth' => 'binary_float', 'temp' => 'hex', 'time' => 'hex');
+            $fields = array('temp' => 'hex', 'depth' => 'binary_float', 'time' => 'hex');
             $dive_path = array();
             $i = 0;
             foreach ($dive_array as $dive_str) {
@@ -123,6 +123,7 @@ function uncd_divelog_enumerate_dives() {
     $date_field = $DS['start_time']['field_name'];
     $date_format = $DS['start_time']['format'];
     $dive_number = $DS['dive_number']['field_name'];
+    
 
     $filter = '';
     if (isset($UNC_DIVELOG['data_structure'][$D['data_format']]['filter'])) {
@@ -176,4 +177,30 @@ function uncd_divelog_dive_latest() {
     $date_obj = new DateTime($date);
     $day = $date_obj->format("Y-m-d");
     return $day;
+}
+
+function uncd_gallery_data($start_time, $dive_time) {
+    $start_obj = DateTime::createFromFormat("Y-m-d H:i:s", $start_time);
+    $start_stamp = $start_obj->getTimestamp();
+
+    $start_obj->add(new DateInterval('PT' . $dive_time . 'S'));
+    $end_stamp = $start_obj->getTimestamp();
+    
+    $D = array(
+        'dates' => array(substr($start_time, 0, 10)), // array of dates
+        'range' => array( 
+            'start_time' => $start_stamp, // UNIX timestamp
+            'end_time' => $end_stamp,  // UNIX timestamp
+        ),
+        'featured_image' => false,
+        'description' => false,
+    );
+    
+    $files = unc_tools_images_list($D);
+    $file_list = array();
+    foreach ($files as $time => $file) {
+        // for now, we just aggregate the images by minute
+        $file_list[$time] = $file;
+    }
+    return $file_list;
 }

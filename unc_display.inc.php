@@ -45,7 +45,7 @@ function uncd_divelog_display_init($atts) {
         'data_set' => false, // description for the whole day
         'offset' => false,
         'data_format' => 'D4i',
-        'date_offset' => false,
+        'start_time' => false, // when the dive actually started, if the internal time is wrong
         'date_selector' => false,
         'source' => 'user.db',
     ), $atts);
@@ -66,7 +66,10 @@ function uncd_divelog_display_init($atts) {
     } else {
         $UNC_DIVELOG['display']['dive_id'] = $a['dive_id'];
     }
-
+    
+    // we set the fixed start time if available
+    $UNC_DIVELOG['display']['start_time'] = trim($a['start_time']);
+    
     // data format of that dive
     $UNC_DIVELOG['display']['data_format'] = $a['data_format'];
 
@@ -82,31 +85,59 @@ function uncd_divelog_display_init($atts) {
 
 function uncd_display_final($out) {
     global $UNC_DIVELOG;
-    $D = $UNC_DIVELOG;
+    $D = $UNC_DIVELOG['display'];
     $data = uncd_divelog_query();
     $chart_data = $data['dive_path'];
-    $start_time = $data['start_time'];
-    echo $start_time;
+    if ($D['start_time']) {
+        $start_time = $D['start_time'];
+    } else {
+        $start_time = $data['start_time'];
+    }
+    
+    $file_list = uncd_gallery_data($start_time, $data['dive_time']);
+    
+    echo $start_time; // TODO: adjust time
     $date_obj = new DateTime($start_time);
+    $last_file_match_time = $start_time;
     $final_data = array();
     foreach ($chart_data as $dive_point) {
         if ($dive_point['time'] > 0 ) {
             $date_obj->add(new DateInterval("PT" . $dive_point['time'] . "S"));
         }
         $time = $date_obj->format("H:i:s");
+        $count = '';
+        $file_match_time = $date_obj->format("Y-m-d H:i:s");
+        foreach ($file_list as $file_time => $file_data) {
+            if ($file_time < $file_match_time && $file_time >= $last_file_match_time) {
+                $count .= '<img src=\'' . $file_data['thumb_url'] . "'>";
+            }
+        }
+        unset($file_list[$file_match_time]);
+        
+        $depth = $dive_point['depth'] * -1;
         $final_data[$time] = array(
-            'depth' => ($dive_point['depth'] * -1),
-            'temperature' => $dive_point['temp'],
-            // 'customBullet' => uncd_display_gallery_link($time, $dive_point['time']),
+            'depth' => array(
+                'value' => $depth,
+                'text' => "{$depth}m",
+            ),
+            'temperature' => array(
+                'value' => $dive_point['temp'],
+                'text' => "{$dive_point['temp']} C",            
+            )
         );
+        if ($count != '') {
+            $final_data[$time]['depth']['text'] .= $count;
+            $final_data[$time]['depth']['bullet'] = "'" . plugin_dir_url( __FILE__ ) . "css/images/camera.png'";
+        }
+        $last_file_match_time = $file_match_time;
     }
     $out .= '<div class="dives">';
-    $out .= uncd_divelog_javachart($final_data, 'Time', 'none', array('depth' => 'left', 'temperature' => 'right'), 'amchart', false, 500);
+    $out .= uncd_divelog_javachart($final_data, 'Time', 'none', array('temperature' => 'right', 'depth' => 'left'), 'amchart', false, 500);
     $out .= "</div>";
     return $out;
 }
 
-function uncd_display_gallery_link($time, $gap){
+function uncd_display_gallery_link(){
 
 
     $url = '';
@@ -155,9 +186,13 @@ function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = 
     foreach ($data as $row => $line) {
         $out .= "{";
         $out .= "\"$y_axis_name\": \"$row\",";
-        foreach ($line as $field => $value) {
-            $graphs[$field] = ucwords($field);
-            $out .= " \"$field\": $value,";
+        foreach ($line as $type => $L) { 
+            $nice_text = ucwords($type);
+            $graphs[$type] = $nice_text;
+            $out .= " \"$type\": {$L['value']}, \"{$nice_text}_text\": \"{$L['text']}\",";
+            if (isset($L['bullet'])) {
+                $out .= " \"{$nice_text}_bullet\": {$L['bullet']},";
+            }
         }
         $out .= "},\n";
     }
@@ -178,12 +213,14 @@ function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = 
                 $graphaxis = ',"valueAxis": "'.$graph.'"';
             }
         }
+        // 
         $out .= "{
             \"title\": \"$title\",
             \"valueField\": \"$graph\",
             \"fillAlphas\": 0.6,
-            \"balloonText\": \"$title: [[value]]\",
-            \"customBulletField\": \"customBullet\"
+            \"balloonText\": \"[[{$title}_text]]\",
+            \"customBulletField\": \"{$title}_bullet\",
+            \"bulletSize\": 14
             $graphaxis},\n";
     }
     $out .= '
