@@ -108,7 +108,7 @@ function uncd_display_final($out) {
         $count = '';
         $file_match_time = $date_obj->format("Y-m-d H:i:s");
         foreach ($file_list as $file_time => $file_data) {
-            if ($file_time < $file_match_time && $file_time >= $last_file_match_time) {
+            if ($last_file_match_time <= $file_time && $file_time <= $file_match_time) {
                 $count .= '<img src=\'' . $file_data['thumb_url'] . "'>";
             }
         }
@@ -122,17 +122,23 @@ function uncd_display_final($out) {
             ),
             'temperature' => array(
                 'value' => $dive_point['temp'],
-                'text' => "{$dive_point['temp']} C",            
+                'text' => "{$dive_point['temp']}&deg;C",            
             )
         );
         if ($count != '') {
-            $final_data[$time]['depth']['text'] .= $count;
+            $final_data[$time]['depth']['text'] = $count;
             $final_data[$time]['depth']['bullet'] = "'" . plugin_dir_url( __FILE__ ) . "css/images/camera.png'";
         }
         $last_file_match_time = $file_match_time;
     }
     $out .= '<div class="dives">';
-    $out .= uncd_divelog_javachart($final_data, 'Time', 'none', array('temperature' => 'right', 'depth' => 'left'), 'amchart', false, 500);
+    
+    $axis_data = array(
+        'temperature' => array('right', "#b7e021"), 
+        'depth' => array('left', "#2498d2"),
+    );
+    
+    $out .= uncd_divelog_javachart($final_data, 'Time', 'none', $axis_data, 'amchart', false);
     $out .= "</div>";
     return $out;
 }
@@ -158,7 +164,7 @@ function uncd_display_gallery_link(){
  * @param int $hight pixel height of the chart
  * @return string
  */
-function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = false, $name = 'amchart', $sum = true, $height = 500) {
+function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = false, $name = 'amchart', $sum = true, $height = 400) {
     // check the stack type
     $valid_stacktypes = array("none", "regular", "100%", "3d");
     if (!in_array($stacktype, $valid_stacktypes)) {
@@ -208,8 +214,8 @@ function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = 
     foreach ($graphs as $graph => $title) {
         $graphaxis = '';
         if ($axis_groups) {
-            if (isset($axis_groups[$graph])) {
-                $valaxis .= '{"id": "'.$graph.'", "title": "'.$title.'", "position": "'.$axis_groups[$graph].'"},';
+            if (isset($axis_groups[$graph][0])) {
+                $valaxis .= '{"id": "'.$graph.'", "title": "'.$title.'", "position": "'.$axis_groups[$graph][0].'"},';
                 $graphaxis = ',"valueAxis": "'.$graph.'"';
             }
         }
@@ -220,6 +226,7 @@ function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = 
             \"fillAlphas\": 0.6,
             \"balloonText\": \"[[{$title}_text]]\",
             \"customBulletField\": \"{$title}_bullet\",
+            \"lineColor\": \"{$axis_groups[$graph][1]}\",
             \"bulletSize\": 14
             $graphaxis},\n";
     }
