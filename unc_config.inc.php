@@ -12,6 +12,12 @@ $UNC_DIVELOG['user_settings'] = array(
         'type' => 'dropdown',
         'options' => array('calendar' => 'Calendar', 'datelist' => 'Date List'),
     ),
+    'chart_time_option' => array(
+        'help' => 'Do you want to show the actual time below the charts or the minutes since the dive started?.',
+        'default' => 'minutes',
+        'type' => 'dropdown',
+        'options' => array('time' => 'Actual Time', 'minutes' => 'Minutes'),
+    ),
 );
 
 $UNC_DIVELOG['settings_prefix'] = 'uncd_divelog_';

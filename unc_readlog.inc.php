@@ -172,6 +172,9 @@ function uncd_divelog_dive_latest() {
         
     $query = "SELECT $date_field as date_str FROM Dive $filter ORDER BY $date_field DESC LIMIT 1";
     $results = $DB->query($query);
+    if (count($results) == 0) {
+        return false;
+    }
     $row = $results->fetchArray(SQLITE3_ASSOC);
     $date = uncd_divelog_data_convert($date_format, $row['date_str']);
     $date_obj = new DateTime($date);
@@ -200,7 +203,27 @@ function uncd_gallery_data($start_time, $dive_time) {
     $file_list = array();
     foreach ($files as $time => $file) {
         // for now, we just aggregate the images by minute
-        $file_list[$time] = $file;
+        $sec_from_start = strtotime($time) - strtotime($start_time);
+        $file_list[$sec_from_start] = $file;
     }
     return $file_list;
+}
+
+function uncd_gallery_splice($start_time, $files, $dive) {
+    // find seconds from start for all photos
+    $out_data = array();
+    foreach ($files as $file_time => $file_info) {
+
+    }
+    // time interval between start time and file time = seconds
+    
+    // divide by steps and find location (dive step number) in the sequence
+    
+    // find how many seconds behind the required step
+    
+    // get the depth at that second by averaging 
+    
+    // insert data
+    
+    
 }
