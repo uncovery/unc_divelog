@@ -18,6 +18,11 @@ $UNC_DIVELOG['user_settings'] = array(
         'type' => 'dropdown',
         'options' => array('time' => 'Actual Time', 'minutes' => 'Minutes'),
     ),
+    'headline' => array(
+        'help' => 'Headline to be shown above every chart. Can be empty.',
+        'default' => '<h2>Dive Profile & Temperature</h2>',
+        'type' => 'text',
+    ),
 );
 
 $UNC_DIVELOG['settings_prefix'] = 'uncd_divelog_';
