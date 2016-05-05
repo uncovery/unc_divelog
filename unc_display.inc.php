@@ -153,6 +153,7 @@ function uncd_display_final($out) {
         $last_dive_point = $curr_secs;
     }
     $out .= '<div class="dives">';
+    $out .= $UNC_DIVELOG['headline'];
 
     $axis_data = array(
         'temperature' => array('right', "#b7e021", 0),
