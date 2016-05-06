@@ -69,6 +69,7 @@ function uncd_divelog_display_init($atts) {
 
     // we set the fixed start time if available
     $UNC_DIVELOG['display']['start_time'] = trim($a['start_time']);
+    $UNC_DIVELOG['display']['offset'] = trim($a['offset']);
 
     // data format of that dive
     $UNC_DIVELOG['display']['data_format'] = $a['data_format'];
@@ -90,10 +91,13 @@ function uncd_display_final($out) {
     $chart_data = $data['dive_path'];
     if ($D['start_time']) {
         $start_time = $D['start_time'];
+    } else if ($D['offset']) {
+        $start_time = date("Y-m-d H:i:s", strtotime($D['offset'], strtotime($data['start_time'])));
     } else {
         $start_time = $data['start_time'];
     }
 
+    // get the gallery data
     $file_list = uncd_gallery_data($start_time, $data['dive_time']);
 
     //echo $start_time;
@@ -114,6 +118,18 @@ function uncd_display_final($out) {
         }
         $curr_secs += $dive_point['time'];
         $time = $date_obj->format("H:i:s");
+        // first we define the dive points. If an image exists at the same time
+        // this data will be replaced.
+        $final_data[$time] = array(
+            'depth' => array(
+                'value' => $depth,
+                'text' => "{$depth}m",
+            ),
+            'temperature' => array(
+                'value' => $dive_point['temp'],
+                'text' => "{$dive_point['temp']}&deg;C",
+            )
+        );
         foreach ($file_list as $file_time => $file_data) {
             if ($last_dive_point <= $file_time && $file_time <= $curr_secs) {
                 // next depth:
@@ -121,7 +137,7 @@ function uncd_display_final($out) {
                 $depth_per_sec = abs($depth - $next_depth) / $dive_point['time'];
                 $time_gap = $file_time - $curr_secs;
                 $pic_depth = $depth_per_sec * $time_gap + $depth;
-                $text = $pic_depth . '<img src=\'' . $file_data['thumb_url'] . "'>";
+                $text = $pic_depth . 'm<br><img src=\'' . $file_data['thumb_url'] . "'>";
                 $temp_date = $date_obj;
                 $temp_date->sub(new DateInterval("PT" . abs($time_gap) . "S"));
                 $photo_time = $temp_date->format("H:i:s");
@@ -139,17 +155,6 @@ function uncd_display_final($out) {
                 unset($file_list[$file_time]);
             }
         }
-
-        $final_data[$time] = array(
-            'depth' => array(
-                'value' => $depth,
-                'text' => "{$depth}m",
-            ),
-            'temperature' => array(
-                'value' => $dive_point['temp'],
-                'text' => "{$dive_point['temp']}&deg;C",
-            )
-        );
         $last_dive_point = $curr_secs;
     }
     $out .= '<div class="dives">';
@@ -163,7 +168,7 @@ function uncd_display_final($out) {
     $chart_id = 'amchart_' . $D['dive_id'];
 
     $out .= uncd_divelog_javachart($final_data, 'Time', 'none', $axis_data, $chart_id, false);
-    $out .= "</div>";
+    $out .= "<small>Dive computer start time: " . $data['start_time'] . "</small><br>";
     return $out;
 }
 
@@ -219,6 +224,25 @@ function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = 
         $out .= "},\n";
     }
     $out .='],
+        "guides": [{
+            "dashLength": 9,
+            "above": true,
+            "inside": true,
+            "label": "5m",
+            "lineAlpha": 0.8,
+            "value": -5.0,
+            "valueAxis": "depth",
+            "lineColor": "#009933"
+        },{
+            "dashLength": 9,
+            "above": true,
+            "inside": true,
+            "label": "30m",
+            "lineAlpha": 0.8,
+            "value": -30.0,
+            "valueAxis": "depth",
+            "lineColor": "#cc0000"
+        }        ],
         "valueAxes": [{
             "stackType": "'.$stacktype.'",
             "gridAlpha": 0.07,

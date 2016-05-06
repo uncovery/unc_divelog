@@ -123,14 +123,14 @@ function uncd_divelog_enumerate_dives() {
     $date_field = $DS['start_time']['field_name'];
     $date_format = $DS['start_time']['format'];
     $dive_number = $DS['dive_number']['field_name'];
-    
+
 
     $filter = '';
     if (isset($UNC_DIVELOG['data_structure'][$D['data_format']]['filter'])) {
         $sql_filter = $UNC_DIVELOG['data_structure'][$D['data_format']]['filter'];
         $filter = 'WHERE ' . $sql_filter;
     }
-    
+
     // insert the SELECT into the query
     $query = "SELECT $date_field as date_str, $dive_number as dive_number FROM Dive $filter ORDER BY $date_field DESC;";
     $results = $DB->query($query);
@@ -169,7 +169,7 @@ function uncd_divelog_dive_latest() {
         $sql_filter = $UNC_DIVELOG['data_structure'][$D['data_format']]['filter'];
         $filter = 'WHERE ' . $sql_filter;
     }
-        
+
     $query = "SELECT $date_field as date_str FROM Dive $filter ORDER BY $date_field DESC LIMIT 1";
     $results = $DB->query($query);
     if (count($results) == 0) {
@@ -183,23 +183,22 @@ function uncd_divelog_dive_latest() {
 }
 
 function uncd_gallery_data($start_time, $dive_time) {
+    global $UNC_GALLERY;
+    $UNC_GALLERY['debug'][][__FUNCTION__] = func_get_args();
     $start_obj = DateTime::createFromFormat("Y-m-d H:i:s", $start_time);
-    $start_stamp = $start_obj->getTimestamp();
-
     $start_obj->add(new DateInterval('PT' . $dive_time . 'S'));
-    $end_stamp = $start_obj->getTimestamp();
-    
-    $D = array(
-        'dates' => array(substr($start_time, 0, 10)), // array of dates
-        'range' => array( 
-            'start_time' => $start_stamp, // UNIX timestamp
-            'end_time' => $end_stamp,  // UNIX timestamp
-        ),
+    $end_time = $start_obj->format("Y-m-d H:i:s");
+
+    $args = array(
+        'start_time' => $start_time, // UNIX timestamp
+        'end_time' => $end_time,  // UNIX timestamp
         'featured_image' => false,
         'description' => false,
     );
-    
-    $files = unc_tools_images_list($D);
+
+    unc_gallery_display_var_init($args);
+
+    $files = $UNC_GALLERY['display']['files'];
     $file_list = array();
     foreach ($files as $time => $file) {
         // for now, we just aggregate the images by minute
@@ -216,14 +215,14 @@ function uncd_gallery_splice($start_time, $files, $dive) {
 
     }
     // time interval between start time and file time = seconds
-    
+
     // divide by steps and find location (dive step number) in the sequence
-    
+
     // find how many seconds behind the required step
-    
-    // get the depth at that second by averaging 
-    
+
+    // get the depth at that second by averaging
+
     // insert data
-    
-    
+
+
 }

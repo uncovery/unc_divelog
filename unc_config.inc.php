@@ -20,7 +20,7 @@ $UNC_DIVELOG['user_settings'] = array(
     ),
     'headline' => array(
         'help' => 'Headline to be shown above every chart. Can be empty.',
-        'default' => '<h2>Dive Profile & Temperature</h2>',
+        'default' => '<h3>Dive Profile & Temperature</h3>',
         'type' => 'text',
     ),
 );

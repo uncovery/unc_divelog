@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Uncovery Divelog
-Plugin URI:  https://github.com/uncovery/uncd_divelog
+Plugin URI:  https://github.com/uncovery/unc_divelog
 Description: A divelog visualizer
 Version:     0.1
 Author:      Uncovery
