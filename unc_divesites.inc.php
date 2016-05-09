@@ -7,6 +7,8 @@ function uncd_divesites_shortcode($atts = array()) {
 
     if (strlen($UNC_DIVELOG['google_api_key']) < 1) {
         return "You need to set a google api key in the configuration to use this feature!";
+    } else {
+        $api_key = $UNC_DIVELOG['google_api_key'];
     }
 
     $cats = get_categories();
