@@ -30,6 +30,7 @@ require_once( plugin_dir_path( __FILE__ ) . "unc_config.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_readlog.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_display.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_backend.inc.php");
+require_once( plugin_dir_path( __FILE__ ) . "unc_divesites.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_db_formats.inc.php");
 
 // actions on activating and deactivating the plugin
@@ -37,8 +38,9 @@ register_activation_hook( __FILE__, 'uncd_divelog_plugin_activate');
 register_deactivation_hook( __FILE__, 'uncd_divelog_plugin_deactivate');
 register_uninstall_hook( __FILE__, 'uncd_divelog_plugin_uninstall');
 
-// shortcode for the [uncd_divelog] replacements
+// shortcode for the [unc_divelog] replacements
 add_shortcode('unc_divelog', 'uncd_display_shortcode');
+add_shortcode('unc_divesites', 'uncd_divesites_shortcode');
 
 /// Ajax actions
 add_action('wp_ajax_nopriv_uncd_divelog_datepicker', 'uncd_display_ajax_datepicker');

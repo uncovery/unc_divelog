@@ -168,7 +168,7 @@ function uncd_display_final($out) {
     $chart_id = 'amchart_' . $D['dive_id'];
 
     $out .= uncd_divelog_javachart($final_data, 'Time', 'none', $axis_data, $chart_id, false);
-    $out .= "<small>Dive computer start time: " . $data['start_time'] . "</small><br>";
+    // $out .= "<small>Dive computer start time: " . $data['start_time'] . "</small><br>";
     return $out;
 }
 
