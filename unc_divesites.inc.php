@@ -3,8 +3,13 @@
 function uncd_divesites_shortcode($atts = array()) {
     // first, get all categories and their data
 
+    global $UNC_DIVELOG;
+
+    if (strlen($UNC_DIVELOG['google_api_key']) < 1) {
+        return "You need to set a google api key in the configuration to use this feature!";
+    }
+
     $cats = get_categories();
-    $api_key = file_get_contents('/home/includes/certificates/google_api_key.txt');
 
     $lats = array();
     $lens = array();

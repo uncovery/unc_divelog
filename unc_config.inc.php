@@ -20,7 +20,12 @@ $UNC_DIVELOG['user_settings'] = array(
     ),
     'headline' => array(
         'help' => 'Headline to be shown above every chart. Can be empty.',
-        'default' => '<h3>Dive Profile & Temperature</h3>',
+        'default' => htmlentities('<h3>Dive Profile & Temperature</h3>'),
+        'type' => 'text',
+    ),
+    'google_api_key' => array(
+        'help' => 'Your google API key to display maps.',
+        'default' => '',
         'type' => 'text',
     ),
 );
