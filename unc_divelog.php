@@ -103,6 +103,7 @@ function uncd_divelog_plugin_uninstall() {
  *
  */
 function uncd_divelog_add_css_and_js() {
+    global $UNC_DIVELOG;
     wp_enqueue_script('jquery-ui');
     wp_enqueue_style('jquery_ui_css', plugin_dir_url( __FILE__ ) . 'css/jquery-ui.css');
 
@@ -116,7 +117,18 @@ function uncd_divelog_add_css_and_js() {
     wp_register_script('uncd_divelog_amchart_js', plugin_dir_url( __FILE__ ) . 'js/amcharts.js', array(), '3.19.5', false);
     wp_register_script('uncd_divelog_amchart_light_js', plugin_dir_url( __FILE__ ) . 'js/light.js', array('uncd_divelog_amchart_js'), '3.19.5', false);
     wp_register_script('uncd_divelog_amchart_serial_js', plugin_dir_url( __FILE__ ) . 'js/serial.js', array('uncd_divelog_amchart_js'), '3.19.5', false);
+
+    // load google maps if it's set
+    if (strlen($UNC_DIVELOG['google_api_key']) > 1) {
+        $api_key = $UNC_DIVELOG['google_api_key'];
+        wp_register_script('uncd_divelog_google_maps', "https://maps.googleapis.com/maps/api/js?key=$api_key", array(), '', false);
+        wp_register_script('uncd_divelog_makerwithlabel_js', plugin_dir_url( __FILE__ ) . 'js/markerwithlabel.js', array(), '', false);
+        wp_enqueue_script('uncd_divelog_google_maps');
+        wp_enqueue_script('uncd_divelog_makerwithlabel_js');
+    }
+
     wp_enqueue_script('uncd_divelog_amchart_js');
     wp_enqueue_script('uncd_divelog_amchart_light_js');
     wp_enqueue_script('uncd_divelog_amchart_serial_js');
+    wp_enqueue_script('uncd_divelog_makerwithlabel_js');
 }
