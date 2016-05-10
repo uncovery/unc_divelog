@@ -102,7 +102,7 @@ function uncd_divesites_shortcode($atts = array()) {
                         position: new google.maps.LatLng(point[1], point[2]),
                         labelContent: "",
                         hoverContent: point[0] + "<br>Click to open",
-                        labelAnchor: new google.maps.Point(30, -5),
+                        labelAnchor: new google.maps.Point(40, -5),
                         map: map,
                         labelClass: "labels",
                         hoverClass: "hoverlabels",
