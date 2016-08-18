@@ -184,7 +184,7 @@ function uncd_divelog_dive_latest() {
 
 function uncd_gallery_data($start_time, $dive_time) {
     global $UNC_GALLERY;
-    $UNC_GALLERY['debug'][][__FUNCTION__] = func_get_args();
+    if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace(__FUNCTION__, func_get_args());}
     $start_obj = DateTime::createFromFormat("Y-m-d H:i:s", $start_time);
     $start_obj->add(new DateInterval('PT' . $dive_time . 'S'));
     $end_time = $start_obj->format("Y-m-d H:i:s");
@@ -192,7 +192,7 @@ function uncd_gallery_data($start_time, $dive_time) {
     $args = array(
         'start_time' => $start_time, // UNIX timestamp
         'end_time' => $end_time,  // UNIX timestamp
-        'featured_image' => false,
+        'featured' => false,
         'description' => false,
     );
 

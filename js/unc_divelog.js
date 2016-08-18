@@ -79,37 +79,3 @@ Date.prototype.addMinutes= function(m){
     return this;
 };
 
-function MarkerWithLabelAndHover(marker){
-    if (marker.get('hoverContent')){
-        marker.set('defaultContent',marker.get('labelContent'))
-        var fx=function(e,m){
-            var r=e.relatedTarget;
-            if(!r){
-                return true;
-            }
-            while(r.parentNode){
-                if(r.className==m.labelClass){
-                    return false;
-                }
-                r=r.parentNode;
-            }
-            return true;
-        }
-        marker.set('defaultContent',marker.get('labelContent'))
-        google.maps.event.addListener(marker,'mouseout',function(e){
-            var that=this;
-            if(fx(e,this)){
-                this.set('labelContent', this.get('defaultContent'));
-                this.set('labelClass', this.get('defaultClass'));
-            }
-        });
-        google.maps.event.addListener(marker,'mouseover',function(e){
-            var that=this;
-            if(fx(e,this)){
-                this.set('labelContent', this.get('hoverContent'));
-                this.set('labelClass', this.get('hoverClass'));
-            }
-        });
-    }
-    return marker;
-}
