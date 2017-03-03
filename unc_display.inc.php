@@ -99,7 +99,7 @@ function uncd_display_final($out) {
 
     // get the gallery data
     $file_list = uncd_gallery_data($start_time, $data['dive_time']);
-
+    
     //echo $start_time;
     if ($UNC_DIVELOG['user_settings']['chart_time_option'] == 'time') {
         $date_obj = new DateTime($start_time);

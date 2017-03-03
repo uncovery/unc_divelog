@@ -197,14 +197,17 @@ function uncd_gallery_data($start_time, $dive_time) {
     );
 
     unc_gallery_display_var_init($args);
-
+    
     $files = $UNC_GALLERY['display']['files'];
+
     $file_list = array();
-    foreach ($files as $time => $file) {
-        // for now, we just aggregate the images by minute
+    foreach ($files as $file) {
+        $time = $file['file_date'];
+        // for now, we just aggregate the images by minute so we do not show more than one image per minute
         $sec_from_start = strtotime($time) - strtotime($start_time);
         $file_list[$sec_from_start] = $file;
     }
+    
     return $file_list;
 }
 
