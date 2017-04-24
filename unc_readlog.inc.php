@@ -87,12 +87,32 @@ function uncd_divelog_data_convert($format, $data) {
             return $date_str;
         case 'D4i_SampleBlob':
             //  see here: http://lists.subsurface-divelog.org/pipermail/subsurface/2014-November/015798.html
-            $data_clipped = substr($data, 4);
-            $data_str = chunk_split($data_clipped, 46, "|");
+            // strip of X'
+            $data_clean = substr($data, 2);
+            $chunk_split = array(
+                '3' => array(
+                    // 03 pattern is in the format 1400 A470CD40 FFFFFF7F 1E       FFFF7F7 FFFFF7F7 FFFFF7F7F
+                    'chunk_length' => 46,
+                    'fields' => array('temp' => 'hex', 'depth' => 'binary_float', 'time' => 'hex'),
+                    'pattern' => "/(?'time'[0-9A-F]{2})[0-9A-F]{2}(?'depth'[0-9A-F]{8})[0-9A-F]{8}(?'temp'[0-9A-F]{2}).*/",
+                ),
+                '4' => array(
+                    // 04 pattern is in the format 1400 AE474140 FFFFFF7F FDFFEF41 FFFF7F7 FFFFF7F7 FFFFF7F7F
+                    'chunk_length' => 52,
+                    'fields' => array('temp' => 'binary_float', 'depth' => 'binary_float', 'time' => 'hex'),
+                    'pattern' => "/(?'time'[0-9A-F]{2})[0-9A-F]{2}(?'depth'[0-9A-F]{8})[0-9A-F]{8}(?'temp'[0-9A-F]{8}).*/",
+                ),
+            );
+            $data_type = substr($data_clean, 1, 1);
+
+            XMPP_ERROR_trace("data", $data_type);
+            XMPP_ERROR_trigger("test");
+            $data_clipped = substr($data_clean, 2);
+            $data_str = chunk_split($data_clipped, $chunk_split[$data_type]['chunk_length'], "|");
             $dive_array = explode("|", $data_str);
-            // pattern is in the format 1400 A470CD40 FFFFFF7F 1E FFFF7F7 FFFFF7F7 FFFFF7F7F
-            $pattern = "/(?'time'[0-9A-F]{2})[0-9A-F]{2}(?'depth'[0-9A-F]{8})[0-9A-F]{8}(?'temp'[0-9A-F]{2}).*/";
-            $fields = array('temp' => 'hex', 'depth' => 'binary_float', 'time' => 'hex');
+
+            $pattern = $chunk_split[$data_type]['pattern'];
+            $fields = $chunk_split[$data_type]['fields'];
             $dive_path = array();
             $i = 0;
             foreach ($dive_array as $dive_str) {
@@ -197,7 +217,7 @@ function uncd_gallery_data($start_time, $dive_time) {
     );
 
     unc_gallery_display_var_init($args);
-    
+
     $files = $UNC_GALLERY['display']['files'];
 
     $file_list = array();
@@ -207,7 +227,7 @@ function uncd_gallery_data($start_time, $dive_time) {
         $sec_from_start = strtotime($time) - strtotime($start_time);
         $file_list[$sec_from_start] = $file;
     }
-    
+
     return $file_list;
 }
 
