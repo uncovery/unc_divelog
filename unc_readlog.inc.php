@@ -104,9 +104,6 @@ function uncd_divelog_data_convert($format, $data) {
                 ),
             );
             $data_type = substr($data_clean, 1, 1);
-
-            XMPP_ERROR_trace("data", $data_type);
-            XMPP_ERROR_trigger("test");
             $data_clipped = substr($data_clean, 2);
             $data_str = chunk_split($data_clipped, $chunk_split[$data_type]['chunk_length'], "|");
             $dive_array = explode("|", $data_str);
