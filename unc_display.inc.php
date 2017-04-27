@@ -161,8 +161,8 @@ function uncd_display_final($out) {
     $out .= $UNC_DIVELOG['headline'];
 
     $axis_data = array(
-        'temperature' => array('right', "#b7e021", 0),
-        'depth' => array('left', "#2498d2", 0.6),
+        'temperature' => array('position' => 'right', 'lineColor' => "#b7e021", 'fillAlphas' => 0),
+        'depth' => array('position' => 'left', 'lineColor' => "#2498d2", 'fillAlphas' => 0.6),
     );
 
     $chart_id = 'amchart_' . $D['dive_id'];
@@ -254,8 +254,8 @@ function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = 
     foreach ($graphs as $graph => $title) {
         $graphaxis = '';
         if ($axis_groups) {
-            if (isset($axis_groups[$graph][0])) {
-                $valaxis .= '{"id": "'.$graph.'", "title": "'.$title.'", "position": "'.$axis_groups[$graph][0].'"},';
+            if (isset($axis_groups[$graph]['position'])) {
+                $valaxis .= '{"id": "'.$graph.'", "title": "'.$title.'", "position": "'.$axis_groups[$graph]['position'].'"},';
                 $graphaxis = ',"valueAxis": "'.$graph.'"';
             }
         }
@@ -263,10 +263,10 @@ function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = 
         $out .= "{
             \"title\": \"$title\",
             \"valueField\": \"$graph\",
-            \"fillAlphas\": {$axis_groups[$graph][2]},
+            \"fillAlphas\": {$axis_groups[$graph]['fillAlphas']},
             \"balloonText\": \"[[{$title}_text]]\",
             \"customBulletField\": \"{$title}_bullet\",
-            \"lineColor\": \"{$axis_groups[$graph][1]}\",
+            \"lineColor\": \"{$axis_groups[$graph]['lineColor']}\",
             \"bulletSize\": 14
             $graphaxis},\n";
     }
