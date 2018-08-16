@@ -22,7 +22,7 @@ if (file_exists('/home/includes/xmpp_error/xmpp_error.php')) {
     require_once('/home/includes/xmpp_error/xmpp_error.php');
     $XMPP_ERROR['config']['project_name'] = 'UNC_DIVELOG';
     $XMPP_ERROR['config']['enabled'] = true;
-    $XMPP_ERROR['config']['ignore_warnings'] = array('jaxl', 'iwp-client', 'multi-column-tag-map');
+    $XMPP_ERROR['config']['ignore_warnings'] = array('jaxl', 'iwp-client', 'multi-column-tag-map', 'wp-admin');
     $XMPP_ERROR['config']['track_globals'] = array('UNC_DIVELOG');
 }
 
