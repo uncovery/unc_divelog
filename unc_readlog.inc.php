@@ -5,7 +5,12 @@ if (!defined('WPINC')) {
 }
 
 function uncd_divelog_db_connect($filename) {
-    $file = __DIR__ . DIRECTORY_SEPARATOR . "data" . DIRECTORY_SEPARATOR . $filename;
+    global $UNC_DIVELOG;
+    $file = $UNC_DIVELOG['datapath'] . DIRECTORY_SEPARATOR . $filename;
+    if (!file_exists($file)) {
+        echo "Could not read file $file, does not exist!";
+        return false;
+    }
     $database = new SQLite3($file, SQLITE3_OPEN_READONLY);
     if (!$database) {
         echo "Error $file";
@@ -183,9 +188,10 @@ function uncd_divelog_dive_latest() {
     $DB = uncd_divelog_db_connect($D['source']);
 
     $DS = $UNC_DIVELOG['data_structure'][$D['data_format']]['fieldmap'];
-
-    $date_field = $DS['start_time']['field_name'];
+    $table_name = $UNC_DIVELOG['data_structure'][$D['data_format']]['dive_table_name'];
+    $dive_id_field = $DS['dive_number']['field_name'];
     $date_format = $DS['start_time']['format'];
+    $date_field = $DS['start_time']['field_name'];
 
     $filter = '';
     if (isset($UNC_DIVELOG['data_structure'][$D['data_format']]['filter'])) {
@@ -193,16 +199,13 @@ function uncd_divelog_dive_latest() {
         $filter = 'WHERE ' . $sql_filter;
     }
 
-    $query = "SELECT $date_field as date_str FROM Dive $filter ORDER BY $date_field DESC LIMIT 1";
+    $query = "SELECT $dive_id_field AS dive_id FROM $table_name $filter ORDER BY $date_field DESC LIMIT 1";
     $results = $DB->query($query);
     if (count($results) == 0) {
         return false;
     }
     $row = $results->fetchArray(SQLITE3_ASSOC);
-    $date = uncd_divelog_data_convert($date_format, $row['date_str']);
-    $date_obj = new DateTime($date);
-    $day = $date_obj->format("Y-m-d");
-    return $day;
+    return $row['dive_id'];
 }
 
 function uncd_gallery_data($start_time, $dive_time) {

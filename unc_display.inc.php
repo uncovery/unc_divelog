@@ -2,8 +2,10 @@
 
 function uncd_display_ajax_datepicker() {
     $dive_id = filter_input(INPUT_GET, 'dive_id', FILTER_SANITIZE_NUMBER_INT);
-    XMPP_ERROR_send_msg($dive_id);
-    uncd_display_shortcode(array('dive_id' => $dive_id, 'echo' => true));
+    $source = filter_input(INPUT_GET, 'source_name', FILTER_SANITIZE_STRING);
+    ob_clean();
+    echo uncd_display_shortcode(array('dive_id' => $dive_id, 'echo' => true, 'source' => $source . ".db"));;
+    wp_die();    
 }
 
 function uncd_display_shortcode($atts = array()) {
@@ -11,11 +13,12 @@ function uncd_display_shortcode($atts = array()) {
     uncd_divelog_display_init($atts);
 
     $D = $UNC_DIVELOG['display'];
+    $source = $D['source_name'];
 
     $out = '';
     if ($D['date_selector'] == 'calendar') {
         $avail_dives = uncd_divelog_enumerate_dives($D['data_format']);
-        $out = "\n     <script type=\"text/javascript\">
+        $out = "\n     <script>
         var availableDates = [\"" . implode("\",\"", array_keys($avail_dives)) . "\"];
         var ajaxurl = \"" . admin_url('admin-ajax.php') . "\";
         jQuery(document).ready(function($) {
@@ -25,7 +28,7 @@ function uncd_display_shortcode($atts = array()) {
         $out .= "Date: <input type=\"text\" id=\"datepicker\" value=\"{$D['date']}\">";
     } else if ($D['date_selector'] == 'datelist') {
         $avail_dives = uncd_divelog_enumerate_dives($D['data_format']);
-        $out = "<select id=\"divepicker\" onchange=\"divelist_change()\">\n";
+        $out = "<select id=\"divepicker\" onchange=\"divelist_change(this.value, '$source')\">\n";
         foreach ($avail_dives as $dive_date => $dives) {
             foreach ($dives as $dive_id => $dive_time) {
                 $out .= "<option value=\"$dive_id\">$dive_id: $dive_date $dive_time</option>\n";
@@ -40,14 +43,15 @@ function uncd_divelog_display_init($atts) {
     global $UNC_DIVELOG;
     $a = shortcode_atts( array(
         'options' => false, // we cannot set it to an array here
-        'date' => false, // time of the day when we start displaying this date
-        'dive_id' => false, // time of the day when we stop displaying this date
+        'date' => false, // show a specific date
+        'dive_id' => false, // which dive do we show?
         'data_set' => false, // description for the whole day
         'offset' => false,
         'data_format' => 'D4i',
         'start_time' => false, // when the dive actually started, if the internal time is wrong
         'date_selector' => false,
-        'source' => 'user.db',
+        'source' => 'default.db', // this is the default filename without extension
+        
     ), $atts);
 
     // there can be several options, separated by space
@@ -59,10 +63,12 @@ function uncd_divelog_display_init($atts) {
     $UNC_DIVELOG['options'] = $options;
 
     $UNC_DIVELOG['display']['source'] = $a['source'];
+    $UNC_DIVELOG['display']['source_name'] = pathinfo($a['source'], PATHINFO_FILENAME);
+    $UNC_DIVELOG['display']['data_format'] = $a['data_format'];
 
-    // which dive ID
+    // which dive ID, default to latest
     if (!$a['dive_id']) {
-        $UNC_DIVELOG['display']['dive_id'] = 83;
+        $UNC_DIVELOG['display']['dive_id'] = uncd_divelog_dive_latest();
     } else {
         $UNC_DIVELOG['display']['dive_id'] = $a['dive_id'];
     }
@@ -80,7 +86,7 @@ function uncd_divelog_display_init($atts) {
     } else if (in_array('datelist', $options)) {
         $UNC_DIVELOG['display']['date_selector'] = 'datelist';
     }
-    $UNC_DIVELOG['display']['date'] = uncd_divelog_dive_latest();
+    // $UNC_DIVELOG['display']['date'] = uncd_divelog_dive_latest();
 }
 
 
@@ -89,6 +95,10 @@ function uncd_display_final($out) {
     $D = $UNC_DIVELOG['display'];
     $data = uncd_divelog_query();
     $chart_data = $data['dive_path'];
+
+    // link the chart name to the source file
+    $chart_id = 'amchart' . $D['source_name'];    
+    
     if ($D['start_time']) {
         $start_time = $D['start_time'];
     } else if ($D['offset']) {
@@ -160,7 +170,6 @@ function uncd_display_final($out) {
         }
         $last_dive_point = $curr_secs;
     }
-    $out .= '<div class="dives">';
     $out .= $UNC_DIVELOG['headline'];
 
     $axis_data = array(
@@ -168,9 +177,10 @@ function uncd_display_final($out) {
         'depth' => array('position' => 'left', 'lineColor' => "#2498d2", 'fillAlphas' => 0.6),
     );
 
-    $chart_id = 'amchart_' . $D['dive_id'];
+
 
     $out .= uncd_divelog_javachart($final_data, 'Time', 'none', $axis_data, $chart_id, false);
+    // TODO: Make this one an option
     // $out .= "<small>Dive computer start time: " . $data['start_time'] . "</small><br>";
     return $out;
 }
@@ -194,8 +204,9 @@ function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = 
     if (!in_array($stacktype, $valid_stacktypes)) {
         return 'Invalid stacktype!';
     }
+       
     $out = "\n<div style=\"width: 100%; height: {$height}px; font-size: 11px;\" id=\"$name\"></div>\n";
-    $out .= "<script type=\"text/javascript\">
+    $out .= "<script>
         var chart = AmCharts.makeChart(\"$name\", {"
         . '
         "type": "serial",
