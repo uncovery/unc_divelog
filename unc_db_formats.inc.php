@@ -12,6 +12,7 @@ $UNC_DIVELOG['data_structure'] = array(
             'dive_path' => array('field_name' => 'quote(SampleBlob)', 'format' => 'D4i_SampleBlob'),
             'dive_time' => array('field_name' => 'Duration'), // in seconds
         ),
+        'dive_table_name' => 'Dive',
         'filter' => 'Mode < 3', // no free diving for now
         'sample_data' => array(
             'DiveId' => 83,
