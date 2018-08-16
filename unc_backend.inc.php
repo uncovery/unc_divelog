@@ -146,7 +146,18 @@ function uncd_divelog_admin_display_dives() {
     global $UNC_DIVELOG;
     $out = "<h2>Manage Dives</h2>\n";
     // get a standard short-tag output for latest date with datepicker
-    $out .= uncd_display_shortcode(array('options'=> $UNC_DIVELOG['admin_date_selector']));
+    // let's get all the files we have a vailable
+    uncd_divelog_admin_listfiles($UNC_DIVELOG['datapath']);
+    
+    foreach ($UNC_DIVELOG['datafiles'] as $F) {
+        $out .= "<h3>" . $F . "</h3>";
+        $out .= uncd_display_shortcode(
+                array(
+                    'options' => $UNC_DIVELOG['admin_date_selector'],
+                    'source' => $F,
+                )
+            );
+    }
     echo $out;
 }
 
@@ -165,4 +176,21 @@ function uncd_divelog_admin_show_documentation() {
 
 function uncd_divelog_admin_upload() {
     return "Upload dialogue to be shown here!";
+}
+
+/**
+ * Make a list of all images in folder and subfolder
+ *
+ * @param type $path
+ * @return type
+ */
+function uncd_divelog_admin_listfiles($path) {
+    global $UNC_DIVELOG;
+    foreach (glob($path . "/*") as $file) {
+        $extension = pathinfo($file, PATHINFO_EXTENSION);
+        if (!is_dir($file) && $extension == 'db') { // recurse lower directory
+            $UNC_DIVELOG['datafiles'][] = basename($file);
+        }
+    }
+    return true;
 }
