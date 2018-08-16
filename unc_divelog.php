@@ -17,6 +17,8 @@ if (!defined('WPINC')) {
 
 global $UNC_DIVELOG;
 
+$UNC_DIVELOG['datapath'] = $file = __DIR__ . DIRECTORY_SEPARATOR . "data";
+
 global $XMPP_ERROR;
 if (file_exists('/home/includes/xmpp_error/xmpp_error.php')) {
     require_once('/home/includes/xmpp_error/xmpp_error.php');
