@@ -12,12 +12,12 @@ function datepicker_available(date, divecount) {
     }
 }
 
-function divepicker_select(dive_id, inst) {
+function divepicker_select(dive_id, source_file, inst) {
     jQuery.ajax({
         url: ajaxurl,
         method: 'GET',
         dataType: 'text',
-        data: {action: 'uncd_divelog_datepicker', date: dive_id},
+        data: {action: 'uncd_divelog_datepicker', dive_id: dive_id, source_file: source_file},
         complete: function (response) {
             jQuery('#dives').html(response.responseText);
         },
@@ -36,9 +36,8 @@ function datepicker_ready(defaultdate) {
     });
 }
 
-function divelist_change() {
-    var divelist_value = jQuery('#divepicker').val();
-    divepicker_select(divelist_value);
+function divelist_change(dive_id, source_file) {
+    divepicker_select(dive_id, source_file);
 }
 
 function uncd_divelog_generic_ajax(action, target_div, confirmation_message) {
