@@ -25,7 +25,7 @@ function uncd_display_shortcode($atts = array()) {
     
     
     if ($D['date_selector'] == 'calendar') {
-        $avail_dives = unc_dive_list($D['data_format'], $D['source_path']);
+        $avail_dives = $UNC_DIVELOG['dive_object']->dive_list();
         $out = "\n     <script>
         var availableDates = [\"" . implode("\",\"", array_keys($avail_dives)) . "\"];
         var ajaxurl = \"" . admin_url('admin-ajax.php') . "\";
@@ -35,7 +35,7 @@ function uncd_display_shortcode($atts = array()) {
         </script>";
         $out .= "Date: <input type=\"text\" id=\"datepicker\" value=\"{$D['date']}\">";
     } else if ($D['date_selector'] == 'datelist') {
-        $avail_dives = unc_dive_list($D['data_format'], $D['source_path']);
+        $avail_dives = $UNC_DIVELOG['dive_object']->dive_list();
         $chart_id = $UNC_DIVELOG['chart_id'];
         $out = "<select id=\"divepicker\" onchange=\"divelist_change(this.value, '$source', '$chart_id')\">\n";
         foreach ($avail_dives as $dive_date => $dives) {
@@ -62,7 +62,6 @@ function uncd_divelog_display_init($atts) {
         'start_time' => false, // when the dive actually started, if the internal time is wrong
         'date_selector' => false,
         'source' => 'default.db', // this is the default filename without extension
-        
     ), $atts);
     
     // we create a unique chart ID so that AJAX can update the right chart in case there are several on one page
@@ -82,9 +81,14 @@ function uncd_divelog_display_init($atts) {
     $UNC_DIVELOG['display']['data_format'] = $a['data_format'];
     $UNC_DIVELOG['display']['source_path'] = $UNC_DIVELOG['datapath']. DIRECTORY_SEPARATOR . $a['source'];
 
+    // initialize dive data
+    $UNC_DIVELOG['dive_object'] = new unc_dive();
+    $UNC_DIVELOG['dive_object']->set_computer_type($a['data_format']);
+    $UNC_DIVELOG['dive_object']->set_source($UNC_DIVELOG['display']['source_path']);
+    
     // which dive ID, default to latest
     if (!$a['dive_id']) {
-        $latest_dive = unc_dive_latest($a['data_format'], $UNC_DIVELOG['display']['source_path']);
+        $latest_dive = $UNC_DIVELOG['dive_object']->get_latest_dive_id();
         if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace("laste dive", $latest_dive);}
         $UNC_DIVELOG['display']['dive_id'] = $latest_dive;
     } else {
@@ -118,7 +122,7 @@ function uncd_display_final($out) {
     if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace(__FUNCTION__, func_get_args());}
 
     $D = $UNC_DIVELOG['display'];
-    $data = unc_dive_get_one($D['data_format'], $D['source_path'], $D['dive_id']);
+    $data = $UNC_DIVELOG['dive_object']->dive_get_one($D['dive_id']);
     if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace("dive data", $data);}
     $chart_data = $data['dive_path'];
 
