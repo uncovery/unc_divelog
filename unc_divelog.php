@@ -35,6 +35,7 @@ require_once( plugin_dir_path( __FILE__ ) . "unc_backend.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_divesites.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_db_formats.inc.php");
 
+
 // actions on activating and deactivating the plugin
 register_activation_hook( __FILE__, 'uncd_divelog_plugin_activate');
 register_deactivation_hook( __FILE__, 'uncd_divelog_plugin_deactivate');
@@ -64,6 +65,13 @@ foreach ($UNC_DIVELOG['user_settings'] as $setting => $D) {
     $UNC_DIVELOG[$setting] = get_option($UNC_DIVELOG['settings_prefix'] . $setting, $D['default']);
 }
 
+$dive_log_library_path = $UNC_DIVELOG['unc_dive_library_location'];
+if (file_exists($dive_log_library_path)) {
+    require_once($dive_log_library_path);
+    $UNC_DIVELOG['library_active'] = true;
+} else {
+    $UNC_DIVELOG['library_active'] = false;
+}
 
 /**
  * standard wordpress function to activate the plugin.

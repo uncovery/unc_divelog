@@ -11,13 +11,18 @@ function uncd_display_ajax_datepicker() {
 function uncd_display_shortcode($atts = array()) {
     global $UNC_DIVELOG;
     uncd_divelog_display_init($atts);
+    
+    if (!$UNC_DIVELOG['library_active']) {
+        return "Please provide the correct path to the unc_dive library in the admin config!";
+    }
 
     $D = $UNC_DIVELOG['display'];
     $source = $D['source_name'];
 
     $out = '';
+    $avail_dives = unc_dive_list($D['data_format'], $D['source_path']);
+    
     if ($D['date_selector'] == 'calendar') {
-        $avail_dives = uncd_divelog_enumerate_dives($D['data_format']);
         $out = "\n     <script>
         var availableDates = [\"" . implode("\",\"", array_keys($avail_dives)) . "\"];
         var ajaxurl = \"" . admin_url('admin-ajax.php') . "\";
@@ -27,7 +32,6 @@ function uncd_display_shortcode($atts = array()) {
         </script>";
         $out .= "Date: <input type=\"text\" id=\"datepicker\" value=\"{$D['date']}\">";
     } else if ($D['date_selector'] == 'datelist') {
-        $avail_dives = uncd_divelog_enumerate_dives($D['data_format']);
         $out = "<select id=\"divepicker\" onchange=\"divelist_change(this.value, '$source')\">\n";
         foreach ($avail_dives as $dive_date => $dives) {
             foreach ($dives as $dive_id => $dive_time) {
@@ -65,10 +69,11 @@ function uncd_divelog_display_init($atts) {
     $UNC_DIVELOG['display']['source'] = $a['source'];
     $UNC_DIVELOG['display']['source_name'] = pathinfo($a['source'], PATHINFO_FILENAME);
     $UNC_DIVELOG['display']['data_format'] = $a['data_format'];
+    $UNC_DIVELOG['display']['source_path'] = $UNC_DIVELOG['datapath']. DIRECTORY_SEPARATOR . $a['source'];
 
     // which dive ID, default to latest
     if (!$a['dive_id']) {
-        $UNC_DIVELOG['display']['dive_id'] = uncd_divelog_dive_latest();
+        $UNC_DIVELOG['display']['dive_id'] = unc_divelog_dive_latest($a['data_format'], $UNC_DIVELOG['display']['source_path']);
     } else {
         $UNC_DIVELOG['display']['dive_id'] = $a['dive_id'];
     }
@@ -86,14 +91,13 @@ function uncd_divelog_display_init($atts) {
     } else if (in_array('datelist', $options)) {
         $UNC_DIVELOG['display']['date_selector'] = 'datelist';
     }
-    // $UNC_DIVELOG['display']['date'] = uncd_divelog_dive_latest();
 }
 
 
 function uncd_display_final($out) {
     global $UNC_DIVELOG;
     $D = $UNC_DIVELOG['display'];
-    $data = uncd_divelog_query();
+    $data = unc_dive_get_one($D['data_format'], $D['source_path'], $D['dive_id']);
     $chart_data = $data['dive_path'];
 
     // link the chart name to the source file
@@ -181,7 +185,7 @@ function uncd_display_final($out) {
 
     $out .= uncd_divelog_javachart($final_data, 'Time', 'none', $axis_data, $chart_id, false);
     // TODO: Make this one an option
-    // $out .= "<small>Dive computer start time: " . $data['start_time'] . "</small><br>";
+    $out .= "<small>Dive computer start time: " . $data['start_time'] . "</small><br>";
     return $out;
 }
 
