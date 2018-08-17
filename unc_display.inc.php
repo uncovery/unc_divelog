@@ -9,7 +9,9 @@ function uncd_display_ajax_datepicker() {
 }
 
 function uncd_display_shortcode($atts = array()) {
-    global $UNC_DIVELOG;
+    global $UNC_DIVELOG, $UNC_GALLERY;
+    if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace(__FUNCTION__, func_get_args());}
+    
     uncd_divelog_display_init($atts);
     
     if (!$UNC_DIVELOG['library_active']) {
@@ -47,7 +49,9 @@ function uncd_display_shortcode($atts = array()) {
 }
 
 function uncd_divelog_display_init($atts) {
-    global $UNC_DIVELOG;
+    global $UNC_DIVELOG, $UNC_GALLERY;
+    if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace(__FUNCTION__, func_get_args());}
+    
     $a = shortcode_atts( array(
         'options' => false, // we cannot set it to an array here
         'date' => false, // show a specific date
@@ -80,7 +84,9 @@ function uncd_divelog_display_init($atts) {
 
     // which dive ID, default to latest
     if (!$a['dive_id']) {
-        $UNC_DIVELOG['display']['dive_id'] = unc_dive_latest($a['data_format'], $UNC_DIVELOG['display']['source_path']);
+        $latest_dive = unc_dive_latest($a['data_format'], $UNC_DIVELOG['display']['source_path']);
+        if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace("laste dive", $latest_dive);}
+        $UNC_DIVELOG['display']['dive_id'] = $latest_dive;
     } else {
         $UNC_DIVELOG['display']['dive_id'] = $a['dive_id'];
     }
@@ -100,11 +106,20 @@ function uncd_divelog_display_init($atts) {
     }
 }
 
-
+/**
+ * display the actual data
+ * 
+ * @global type $UNC_DIVELOG
+ * @param type $out
+ * @return string
+ */
 function uncd_display_final($out) {
-    global $UNC_DIVELOG;
+    global $UNC_DIVELOG, $UNC_GALLERY;
+    if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace(__FUNCTION__, func_get_args());}
+
     $D = $UNC_DIVELOG['display'];
     $data = unc_dive_get_one($D['data_format'], $D['source_path'], $D['dive_id']);
+    if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace("dive data", $data);}
     $chart_data = $data['dive_path'];
 
     // link the chart name to the source file
@@ -210,6 +225,8 @@ function uncd_display_final($out) {
  * @return string
  */
 function uncd_divelog_javachart($data, $y_axis_name, $stacktype, $axis_groups = false, $name = 'amchart', $sum = true, $height = 400) {
+    global $UNC_DIVELOG, $UNC_GALLERY;
+    if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace(__FUNCTION__, func_get_args());}
     // check the stack type
     $valid_stacktypes = array("none", "regular", "100%", "3d");
     if (!in_array($stacktype, $valid_stacktypes)) {
@@ -347,6 +364,7 @@ function uncd_gallery_data($start_time, $dive_time) {
         'description' => false,
     );
 
+    if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace(__FUNCTION__ . " dislplay_var_init args", $args);}
     unc_gallery_display_var_init($args);
 
     $files = $UNC_GALLERY['display']['files'];
