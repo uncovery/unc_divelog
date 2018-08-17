@@ -20,9 +20,10 @@ function uncd_display_shortcode($atts = array()) {
     $source = $D['source_name'];
 
     $out = '';
-    $avail_dives = unc_dive_list($D['data_format'], $D['source_path']);
+    
     
     if ($D['date_selector'] == 'calendar') {
+        $avail_dives = unc_dive_list($D['data_format'], $D['source_path']);
         $out = "\n     <script>
         var availableDates = [\"" . implode("\",\"", array_keys($avail_dives)) . "\"];
         var ajaxurl = \"" . admin_url('admin-ajax.php') . "\";
@@ -32,6 +33,7 @@ function uncd_display_shortcode($atts = array()) {
         </script>";
         $out .= "Date: <input type=\"text\" id=\"datepicker\" value=\"{$D['date']}\">";
     } else if ($D['date_selector'] == 'datelist') {
+        $avail_dives = unc_dive_list($D['data_format'], $D['source_path']);
         $chart_id = $UNC_DIVELOG['chart_id'];
         $out = "<select id=\"divepicker\" onchange=\"divelist_change(this.value, '$source', '$chart_id')\">\n";
         foreach ($avail_dives as $dive_date => $dives) {
@@ -78,7 +80,7 @@ function uncd_divelog_display_init($atts) {
 
     // which dive ID, default to latest
     if (!$a['dive_id']) {
-        $UNC_DIVELOG['display']['dive_id'] = unc_divelog_dive_latest($a['data_format'], $UNC_DIVELOG['display']['source_path']);
+        $UNC_DIVELOG['display']['dive_id'] = unc_dive_latest($a['data_format'], $UNC_DIVELOG['display']['source_path']);
     } else {
         $UNC_DIVELOG['display']['dive_id'] = $a['dive_id'];
     }
