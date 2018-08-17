@@ -29,7 +29,6 @@ if (file_exists('/home/includes/xmpp_error/xmpp_error.php')) {
 }
 
 require_once( plugin_dir_path( __FILE__ ) . "unc_config.inc.php");
-require_once( plugin_dir_path( __FILE__ ) . "unc_readlog.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_display.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_backend.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_divesites.inc.php");
@@ -111,7 +110,6 @@ function uncd_divelog_plugin_uninstall() {
  *
  */
 function uncd_divelog_add_css_and_js() {
-    global $UNC_DIVELOG;
     wp_enqueue_script('jquery-ui');
     wp_enqueue_style('jquery_ui_css', plugin_dir_url( __FILE__ ) . 'css/jquery-ui.css');
 

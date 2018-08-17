@@ -186,6 +186,7 @@ function uncd_divelog_admin_upload() {
  */
 function uncd_divelog_admin_listfiles($path) {
     global $UNC_DIVELOG;
+    // once we recognize several data formats, this has to be more flexible.
     foreach (glob($path . "/*") as $file) {
         $extension = pathinfo($file, PATHINFO_EXTENSION);
         if (!is_dir($file) && $extension == 'db') { // recurse lower directory
