@@ -7,8 +7,8 @@ if (!defined('WPINC')) {
 // This is used to automatically / dynamically create the settings menu
 $UNC_DIVELOG['user_settings'] = array(
     'unc_dive_library_location' => array(
-        'help' => 'Path to the unc_dive.inc.php file. Must include filename',
-        'default' => '/path/to/unc_dive.inc.php',
+        'help' => 'Path to the unc_dive.class.php file. Must include filename',
+        'default' => '/path/to/unc_dive.class.php',
         'type' => 'text',
     ),    
     'admin_date_selector' => array(
