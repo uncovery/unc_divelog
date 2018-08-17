@@ -32,7 +32,8 @@ function uncd_display_shortcode($atts = array()) {
         </script>";
         $out .= "Date: <input type=\"text\" id=\"datepicker\" value=\"{$D['date']}\">";
     } else if ($D['date_selector'] == 'datelist') {
-        $out = "<select id=\"divepicker\" onchange=\"divelist_change(this.value, '$source')\">\n";
+        $chart_id = $UNC_DIVELOG['chart_id'];
+        $out = "<select id=\"divepicker\" onchange=\"divelist_change(this.value, '$source', '$chart_id')\">\n";
         foreach ($avail_dives as $dive_date => $dives) {
             foreach ($dives as $dive_id => $dive_time) {
                 $out .= "<option value=\"$dive_id\">$dive_id: $dive_date $dive_time</option>\n";
@@ -57,6 +58,10 @@ function uncd_divelog_display_init($atts) {
         'source' => 'default.db', // this is the default filename without extension
         
     ), $atts);
+    
+    // we create a unique chart ID so that AJAX can update the right chart in case there are several on one page
+    // such as on the admin screen
+    $UNC_DIVELOG['chart_id'] = time();;
 
     // there can be several options, separated by space
     if (!$a['options']) {
@@ -101,7 +106,7 @@ function uncd_display_final($out) {
     $chart_data = $data['dive_path'];
 
     // link the chart name to the source file
-    $chart_id = 'amchart' . $D['source_name'];    
+    $chart_id = 'amchart' . $UNC_DIVELOG['chart_id'];    
     
     if ($D['start_time']) {
         $start_time = $D['start_time'];
