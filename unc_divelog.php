@@ -33,8 +33,6 @@ require_once( plugin_dir_path( __FILE__ ) . "unc_readlog.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_display.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_backend.inc.php");
 require_once( plugin_dir_path( __FILE__ ) . "unc_divesites.inc.php");
-require_once( plugin_dir_path( __FILE__ ) . "unc_db_formats.inc.php");
-
 
 // actions on activating and deactivating the plugin
 register_activation_hook( __FILE__, 'uncd_divelog_plugin_activate');
