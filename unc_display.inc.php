@@ -82,12 +82,14 @@ function uncd_divelog_display_init($atts) {
     $UNC_DIVELOG['display']['source_path'] = $UNC_DIVELOG['datapath']. DIRECTORY_SEPARATOR . $a['source'];
 
     // initialize dive data
-    $UNC_DIVELOG['dive_object'] = new unc_dive();
-    $UNC_DIVELOG['dive_object']->set_computer_type($a['data_format']);
-    $UNC_DIVELOG['dive_object']->set_source($UNC_DIVELOG['display']['source_path']);
+    if ($UNC_DIVELOG['library_active']) {
+        $UNC_DIVELOG['dive_object'] = new unc_dive();
+        $UNC_DIVELOG['dive_object']->set_computer_type($a['data_format']);
+        $UNC_DIVELOG['dive_object']->set_source($UNC_DIVELOG['display']['source_path']);
+    }
     
     // which dive ID, default to latest
-    if (!$a['dive_id']) {
+    if (!$a['dive_id'] && $UNC_DIVELOG['library_active']) {
         $latest_dive = $UNC_DIVELOG['dive_object']->get_latest_dive_id();
         if ($UNC_GALLERY['debug']) {XMPP_ERROR_trace("laste dive", $latest_dive);}
         $UNC_DIVELOG['display']['dive_id'] = $latest_dive;
