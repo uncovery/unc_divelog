@@ -176,7 +176,7 @@ function uncd_display_final($out) {
             )
         );
         foreach ($file_list as $file_time => $file_data) {
-            if ($last_dive_point <= $file_time && $file_time <= $curr_secs) {
+            if (isset($chart_data[$i + 1]) && $last_dive_point <= $file_time && $file_time <= $curr_secs) {
                 // next depth:
                 $next_depth = $chart_data[$i + 1]['depth'] * -1;
                 $depth_per_sec = abs($depth - $next_depth) / $dive_point['time'];
@@ -213,7 +213,7 @@ function uncd_display_final($out) {
 
     $out .= uncd_divelog_javachart($final_data, 'Time', 'none', $axis_data, $chart_id, false);
     // TODO: Make this one an option
-    $out .= "<small>Dive computer start time: " . $data['start_time'] . "</small><br>";
+    // $out .= "<small>Dive computer start time: " . $data['start_time'] . "</small><br>";
     return $out;
 }
 
